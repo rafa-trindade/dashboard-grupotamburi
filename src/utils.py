@@ -17,7 +17,9 @@ def aplicar_estilo():
         """
         <style> 
 
-
+            #MainMenu {visibility: hidden;}    
+            footer {visibility: hidden;}
+            header {visibility: hidden;} 
 
             [data-testid="baseButton-headerNoPadding"] {
                 color: #2d4f72;
