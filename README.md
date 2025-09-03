@@ -1,6 +1,6 @@
-# Dashboard Elisa Agro
+# Dashboard Grupo Tamburi
 
-Um dashboard interativo desenvolvido com Streamlit para monitoramento e controle das refeições fornecidas às fazendas da Elisa Agro.
+Um dashboard interativo desenvolvido com Streamlit para monitoramento e controle das refeições fornecidas às fazendas do Grupo Tamburi.
 
 ## 📋 Sobre o Projeto
 
