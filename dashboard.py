@@ -32,7 +32,7 @@ data_inicio = pd.Timestamp('2025-08-01')
 # ---------------------------------------------------------------------
 file_id = "1aBnlvtinflvIfHZ2UpsuSYKhItC0uV286FS9A-hE7E8"
 csv_url = f"https://docs.google.com/spreadsheets/d/{file_id}/export?format=csv"
-df_elisa = pd.read_csv(csv_url, sep=";", decimal=",", thousands=".", 
+df_elisa = pd.read_csv(csv_url, sep=",", decimal=",", thousands=".", 
                        usecols=['data', 'fazenda', 'almoco', 'janta', 'cafe', 'lanche', 'vlrCafe', 'vlrAlmoco', 'total'], 
                        index_col=None)
 
