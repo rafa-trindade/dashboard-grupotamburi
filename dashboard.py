@@ -59,34 +59,53 @@ col2_side.markdown('<h5 style="margin-bottom: 15px; text-align: end; color: #053
 tab1, tab2 = st.tabs(["📅 Fechamentos Diários", "📂 Fechamentos"])
 
 with tab2:
-
-    st.markdown("### 📂 Seleção de Arquivos")
     arquivos = listar_arquivos_docs()
 
     if not arquivos:
         st.warning("Nenhum arquivo DOC encontrado na pasta.")
     else:
-        # Formata o modifiedTime como "última atualização: dd/mm/yyyy - HHh:MMm"
         nomes = [
-            f"{f['name']} (última atualização: {datetime.strptime(f['modifiedTime'], '%Y-%m-%dT%H:%M:%S.%fZ').strftime('%d/%m/%Y - %Hh:%Mm')})"
+            f"{f['name']}"
             for f in arquivos
         ]
+        with st.container(border=True):
 
-        escolha = st.selectbox("Selecione um Arquivo:", nomes)
+            col_drop, col_convert, col_download = st.columns([3.5,1,1])
+        
 
-        if escolha:
-            idx = nomes.index(escolha)
-            file_id = arquivos[idx]["id"]
-            nome_arquivo = arquivos[idx]["name"]
+        with col_drop:
+            escolha = st.selectbox("Selecione um Fechamento: (aaaamm-seq)", nomes, key="drop_docs")
 
-            if st.button("⬇️ Exportar como PDF", key="export_pdf_tab3"):
+        # Container para alinhar verticalmente os botões
+        with col_convert:
+            st.markdown("<div style='margin-top: 27.7px;'>", unsafe_allow_html=True)
+            if st.button("⬇️ Exportar como PDF", key="export_pdf_tab3", use_container_width=True):
+                idx = nomes.index(escolha)
+                file_id = arquivos[idx]["id"]
+                nome_arquivo = arquivos[idx]["name"]
                 fh, nome_pdf = exportar_pdf(file_id, nome_arquivo)
+                download_data = fh.getvalue()
+            st.markdown("</div>", unsafe_allow_html=True)
+
+        with col_download:
+            st.markdown("<div style='margin-top: 27.7px;'>", unsafe_allow_html=True)
+            if 'download_data' in locals() and download_data and nome_pdf:
                 st.download_button(
-                    label="📥 Baixar PDF",
-                    data=fh,
+                    label="📥 Download PDF",
+                    data=download_data,
                     file_name=nome_pdf,
-                    mime="application/pdf"
+                    mime="application/pdf",
+                    key="download_pdf_tab3",
+                    use_container_width=True
                 )
+            st.markdown("</div>", unsafe_allow_html=True)
+
+        # Exibir Google Doc original
+        idx = nomes.index(escolha)
+        file_id = arquivos[idx]["id"]
+        doc_url = f"https://docs.google.com/document/d/{file_id}/preview"
+        with st.container(border=True):
+            st.components.v1.iframe(src=doc_url, height=450, scrolling=True)
 
 ########################################################################################
 ####### ABA FECHAMENTOS DIÁRIOS ########################################################
