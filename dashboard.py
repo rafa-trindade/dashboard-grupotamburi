@@ -534,12 +534,16 @@ df["ano"] = df["data"].dt.year
 df["mes"] = df["data"].dt.month
 df["dia"] = df["data"].dt.day
 
-# Identificar o mês selecionado em data_inicial
-data_inicial = pd.Timestamp(data_inicial)  # Supondo que esta é a data selecionada
+# Converter data_selecionada para Timestamp
+data_inicial = pd.Timestamp(data_inicial)  
 data_selecionada = data_inicial
 
-# Filtrar os dados para o mês selecionado
-df_filtrado = df[(df["ano"] == data_selecionada.year) & (df["mes"] == data_selecionada.month)]
+# Definir intervalo dos últimos 30 dias antes da data selecionada (incluindo ela)
+data_inicio = data_selecionada - pd.Timedelta(days=28)
+data_fim = data_selecionada
+
+# Filtrar os dados para os últimos 30 dias
+df_filtrado = df[(df["data"] >= data_inicio) & (df["data"] <= data_fim)]
 
 # Filtrar o DataFrame para a fazenda selecionada (ou todas)
 if fazenda_selecionada != 'Todas':
@@ -646,7 +650,7 @@ else:
     tickvals = linhas_verticais
 
 # Configuração do gráfico
-fig.update_yaxes(showline=True, linecolor="Grey", linewidth=0.1, gridcolor='lightgrey', dtick=10, range=[0, df_grouped["Almoço | Janta"].max() + 40])
+fig.update_yaxes(showline=True, linecolor="Grey", linewidth=0.1, gridcolor='lightgrey', dtick=5, range=[0, df_grouped["Almoço | Janta"].max() + 12])
 fig.update_xaxes(
     showline=True, 
     linecolor="Grey", 
@@ -660,7 +664,11 @@ fig.update_layout(
     margin=dict(l=0, r=0, t=30, b=0),
     height=284,
     title=" ",
-    title_text=f'-QUANTIDADE DE REFEIÇÕES AGRUPADAS ({util.mapa_meses[data_inicial.month].upper()}/{data_inicial.year})',
+    title_text = (
+        f"-DISTRIBUIÇÃO DE REFEIÇÕES AGRUPADAS "
+        f"({data_inicio.day:02d}/{data_inicio.month:02d}/{data_inicio.year} "
+        f"A {data_fim.day:02d}/{data_fim.month:02d}/{data_fim.year})"
+    ),
     title_x=0,
     title_y=1,
     title_font_color="rgb(98,83,119)",
