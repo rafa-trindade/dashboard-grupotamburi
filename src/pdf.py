@@ -31,7 +31,7 @@ def listar_arquivos_docs():
     service = carregar_servico()
     results = service.files().list(
         q=f"'{FOLDER_ID}' in parents and mimeType='application/vnd.google-apps.document'",
-        orderBy="modifiedTime desc",
+        orderBy="modifiedTime",
         fields="files(id, name, modifiedTime)"
     ).execute()
     return results.get("files", [])
