@@ -10,36 +10,10 @@ from google.oauth2 import service_account
 FOLDER_ID = "1onpfyP538eqARrC5gkHvJpclIjOFLsNx"
 
 def _load_credentials_json():
-
-    creds_json = os.environ.get("GOOGLE_CREDENTIALS")
-    if creds_json:
-        try:
-            return json.loads(creds_json)
-        except Exception:
-
-            pass
-
-
-    try:
-
-        secret = st.secrets.get("GOOGLE_CREDENTIALS")
-        if secret:
-            if isinstance(secret, dict):
-                return secret
-            return json.loads(secret)
-    except Exception:
-        pass
-
-
-    local_path = os.path.join(os.path.dirname(__file__), "credenciais.json")
-    if os.path.exists(local_path):
-        with open(local_path, "r", encoding="utf-8") as f:
-            return json.load(f)
-
-    raise RuntimeError(
-        "Credenciais do Google não encontradas. Defina a variável de ambiente GOOGLE_CREDENTIALS "
-        "ou adicione a chave GOOGLE_CREDENTIALS em st.secrets."
-    )
+    if "GOOGLE_CREDENTIALS" in st.secrets:
+        creds_json = st.secrets["GOOGLE_CREDENTIALS"]
+        return json.loads(creds_json)
+    raise RuntimeError("Credenciais não encontradas em st.secrets.")
 
 @st.cache_resource
 def carregar_servico():
