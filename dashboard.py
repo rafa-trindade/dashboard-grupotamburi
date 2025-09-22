@@ -120,7 +120,7 @@ with tab2:
 
         # Botão de exportar PDF
         with col_convert:
-            st.markdown("<div style='margin-top: 27.7px;'>", unsafe_allow_html=True)
+            st.markdown("<div style='margin-top: 27.8px;'>", unsafe_allow_html=True)
             if st.button("⬇️ Exportar como PDF", key="export_pdf_tab3", use_container_width=True):
                 idx = nomes.index(escolha)
                 file_id = arquivos[idx]["id"]
@@ -131,7 +131,7 @@ with tab2:
 
         # Botão de download PDF
         with col_download:
-            st.markdown("<div style='margin-top: 27.7px;'>", unsafe_allow_html=True)
+            st.markdown("<div style='margin-top: 27.8px;'>", unsafe_allow_html=True)
             if "download_data" in locals() and download_data and nome_pdf:
                 st.download_button(
                     label="📥 Download PDF",
