@@ -11,7 +11,7 @@ import src.utils as util
 
 st.set_page_config(
     layout="wide",
-    page_title="Gestão e Análise | Rafael Trindade", 
+    page_title="MH Refeições | Grupo Tamburi", 
     initial_sidebar_state="expanded", 
     page_icon="📊")
 
