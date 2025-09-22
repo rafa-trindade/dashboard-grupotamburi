@@ -18,7 +18,7 @@ st.set_page_config(
 # Chamar a função para aplicar o estilo no início do script
 util.aplicar_estilo()
 
-sidebar_logo = "https://i.postimg.cc/wT0Pkcmf/logo-tamburi.png"
+sidebar_logo = "https://i.postimg.cc/sgrdHyVy/tamburi.png"
 main_body_logo = "https://i.postimg.cc/3xkGPmC6/streamlit02.png"
 st.logo(sidebar_logo, icon_image=main_body_logo)
 
