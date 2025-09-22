@@ -56,7 +56,7 @@ col1_side.markdown('<h5 style="margin-bottom: 15px; color: #053061;">Última Atu
 col2_side.markdown('<h5 style="margin-bottom: 15px; text-align: end; color: #053061;">' + str(df['data'].max().strftime('%d/%m/%Y'))+ '</h5>', unsafe_allow_html=True)
 
 
-tab1, tab2 = st.tabs(["📅 Fechamentos Diários", "📂 Relatŕio (Fechamentos)"])
+tab1, tab2 = st.tabs(["📅 Fechamentos Diários", "📂 Relatório (Fechamentos)"])
 
 with tab2:
     arquivos = listar_arquivos_docs()
