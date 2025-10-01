@@ -171,7 +171,7 @@ with tab4:
 
             # Form que envia ao pressionar Enter ou clicar no botão
             with st.form("form_tab4", clear_on_submit=False):
-                codigo4 = st.text_input("Código de Acesso", type="password", key="codigo_tab4")
+                codigo4 = st.text_input("Digite o Código de Acesso:", type="password", key="codigo_tab4")
                 submit4 = st.form_submit_button("Entrar")
 
             if submit4:
@@ -957,7 +957,7 @@ with tab2:
             placeholder2 = st.empty()  # placeholder para mensagem
 
             with st.form("form_tab2", clear_on_submit=False):
-                codigo2 = st.text_input("Código de Acesso", type="password", key="codigo_tab2")
+                codigo2 = st.text_input("Digite o Código de Acesso:", type="password", key="codigo_tab2")
                 submit2 = st.form_submit_button("Entrar")
 
             if submit2:
@@ -985,7 +985,7 @@ with tab2:
                 c2003 = st.container()
 
         with st.container(border=True):
-            col8, col7 = st.columns([1,4])
+            col8, col7 = st.columns([2,4])
 
             with col8:
                 ctt8 = st.container(border=True )
