@@ -1021,9 +1021,9 @@ with tab2:
         valor_refeicao = "R$ {:,.2f}".format(linha_mais_recente['vlrAlmoco']).replace(".", "@").replace(",", ".").replace("@", ",")
         valor_lanche = "R$ {:,.2f}".format(linha_mais_recente['vlrCafe']).replace(".", "@").replace(",", ".").replace("@", ",")
 
-        c2000.success(f"Refeição: {valor_refeicao}")
+        c2000.success(f"Refeição: {valor_refeicao}", icon=":material/attach_money:")
 
-        c2001.success(f"Lanche:  {valor_lanche}")
+        c2001.success(f"Lanche:  {valor_lanche}", icon=":material/attach_money:")
 
 
         # Convertendo a seleção de mês de volta para o número do mês
