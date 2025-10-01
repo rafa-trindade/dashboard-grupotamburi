@@ -166,15 +166,13 @@ with tab4:
     st.session_state["aba_ativa"] = "tab4"
 
     if not st.session_state["autenticado_tab4"]:
+
         with st.container(border=True):
-            placeholder4 = st.empty()  # placeholder para mensagens
 
-            # Form que envia ao pressionar Enter ou clicar no botão
-            with st.form("form_tab4", clear_on_submit=False):
-                codigo4 = st.text_input("Código de Acesso", type="password", key="codigo_tab4")
-                submit4 = st.form_submit_button("Entrar")
+            placeholder4 = st.empty()  
 
-            if submit4:
+            codigo4 = st.text_input("Código de Acesso", type="password", key="codigo_tab4")
+            if st.button("Entrar", key="btn_tab4"):
                 if codigo4 == CODE:
                     st.session_state["autenticado_tab4"] = True
                     st.session_state["aba_ativa"] = "tab4"
@@ -183,7 +181,6 @@ with tab4:
                     placeholder4.error("Código Incorreto ❌")
             else:
                 placeholder4.warning("Digite o Código para acessar NFE's")
-
     else:
     
         arquivos = listar_arquivos_pdfs()
@@ -953,14 +950,13 @@ with tab2:
     st.session_state["aba_ativa"] = "tab2"
 
     if not st.session_state["autenticado_tab2"]:
+                
         with st.container(border=True):
+
             placeholder2 = st.empty()  # placeholder para mensagem
 
-            with st.form("form_tab2", clear_on_submit=False):
-                codigo2 = st.text_input("Código de Acesso", type="password", key="codigo_tab2")
-                submit2 = st.form_submit_button("Entrar")
-
-            if submit2:
+            codigo2 = st.text_input("Código de Acesso", type="password", key="codigo_tab2")
+            if st.button("Entrar", key="btn_tab2"):
                 if codigo2 == CODE:
                     st.session_state["autenticado_tab2"] = True
                     st.session_state["aba_ativa"] = "tab2"
@@ -971,26 +967,23 @@ with tab2:
                 placeholder2.warning("Digite o Código para acessar Histórico de Faturamento")
     else:
         with st.container(border=True):
-            col_filtro_mes, col_filtro_ano = st.columns(2) 
+            col_filtro_mes, col_filtro_ano, c2000, c2001= st.columns([3, 3, 1.5, 1.5]) 
     
-            col6, col2000 = st.columns([5,1])
+            col6, col7 = st.columns([2,1])
+
             with col6:
                 ctt6 = st.container(border=True )
-            with col2000:
+            with col7:
+                ctt7 = st.container(border=True )
 
-                c2000 = st.container()  
-                c2001 = st.container()  
-
-                c2002 = st.container()  
-                c2003 = st.container()
 
         with st.container(border=True):
-            col8, col7 = st.columns([1,4])
+            col8, col9 = st.columns([1,4])
 
             with col8:
                 ctt8 = st.container(border=True )
-            with col7:
-                ctt7 = st.container(border=True )                
+            with col9:
+                ctt9 = st.container(border=True )
 
 
         ########################################################################################
@@ -1000,30 +993,26 @@ with tab2:
         mes_atual = util.mapa_meses[dt.datetime.now().month]
         ano_atual = dt.datetime.now().year
 
-        anos_disponiveis = util.anos_disponiveis(df)
-
-        ano_selecionado = col_filtro_ano.selectbox(
-            'Selecione o Ano:',
-            anos_disponiveis,
-            index=len(anos_disponiveis)-1,
-            key="tabela_ano"
-        )
-        meses_nomes_disponiveis = util.atualiza_meses_disponiveis(ano_selecionado, df)
-
-        mes_selecionado = col_filtro_mes.selectbox(
-            'Selecione um Mês:',
-            meses_nomes_disponiveis,
-            index=len(meses_nomes_disponiveis)-1,
-            key="tabela_mes"
-        )
+        # Criação dos selectbox para o mês e ano, com valores padrão sendo o mês e ano atuais
+        mes_selecionado = col_filtro_mes.selectbox("Mês", list(util.mapa_meses.values()), index=list(util.mapa_meses.values()).index(mes_atual), key="mes_selecionado")
+        ano_selecionado = col_filtro_ano.selectbox("Ano", sorted(df['data'].dt.year.unique(), reverse=True), index=0,  key="ano_selecionado")
 
         linha_mais_recente = df.sort_values(by='data', ascending=False).iloc[0]
         valor_refeicao = "R$ {:,.2f}".format(linha_mais_recente['vlrAlmoco']).replace(".", "@").replace(",", ".").replace("@", ",")
         valor_lanche = "R$ {:,.2f}".format(linha_mais_recente['vlrCafe']).replace(".", "@").replace(",", ".").replace("@", ",")
 
-        c2000.success(f"Refeição: {valor_refeicao}")
+        with c2000:
+            st.markdown("<div style='margin-bottom: 0px;'>", unsafe_allow_html=True)
+            st.success(f"Refeição: {valor_refeicao}")
+            st.markdown("</div>", unsafe_allow_html=True)
 
-        c2001.success(f"Lanche:  {valor_lanche}")
+        with c2001:
+            st.markdown("<div style='margin-top: 0px;'>", unsafe_allow_html=True)
+            st.success(f"Lanche:\n{valor_lanche}")
+            st.markdown("</div>", unsafe_allow_html=True)
+
+
+
 
 
         # Convertendo a seleção de mês de volta para o número do mês
@@ -1035,16 +1024,6 @@ with tab2:
 
         # Agregando os dados por dia
         venda_total = df_mes_filtrado.groupby("data")[["total"]].sum(numeric_only=True).reset_index()
-
-        primeira_quinzena = venda_total[venda_total['data'].dt.day <= 15]['total'].sum()
-        segunda_quinzena = venda_total[venda_total['data'].dt.day >= 16]['total'].sum()
-
-        primeira_quinzena_formatado = f"R$ {primeira_quinzena:,.2f}".replace('.', '@').replace(',', '.').replace('@', ',')
-        segunda_quinzena_formatado = f"R$ {segunda_quinzena:,.2f}".replace('.', '@').replace(',', '.').replace('@', ',')
-
-        c2002.info(f"1º Fechamento: {primeira_quinzena_formatado}")
-
-        c2003.info(f"2º Fechamento:  {segunda_quinzena_formatado}")
 
         # Adicionando coluna com valores formatados em R$
         venda_total['total_formatado'] = venda_total['total'].apply(lambda x: f"R$ {x:,.2f}".replace('.', '@').replace(',', '.').replace('@', ','))
@@ -1110,6 +1089,7 @@ with tab2:
 
         ctt7.plotly_chart(fig_venda_ano, use_container_width=True)
 
+
         ########################################################################################
         ####### GRAFICO HISTORICO ANUAL ########################################################
         ########################################################################################
@@ -1140,37 +1120,75 @@ with tab2:
             #labels={'data_str': 'Data', 'valor': 'Valor Total'},
         )
 
-        fig_hist_ano.update_yaxes(
-            title_text="",
-            showline=True,
-            linecolor="Grey",
-            linewidth=0.1,
-            gridcolor='lightgrey'
-        )
-
-        fig_hist_ano.update_xaxes(
-            title_text="",
-            showline=True,
-            linecolor="Grey",
-            linewidth=0.1,
-            gridcolor='lightgrey',
-            type='category'   # <- força eixo categórico, sem valores extras
-        )
-
+        # Atualizando traços, layout e eixos
+        fig_hist_ano.update_yaxes(title_text="", showline=True, linecolor="Grey",linewidth=0.1, gridcolor='lightgrey')
+        fig_hist_ano.update_xaxes(title_text="", showline=True, linecolor="Grey", linewidth=0.1, gridcolor='lightgrey')
         fig_hist_ano.update_traces(textposition='inside')
+        fig_hist_ano.update_layout(margin=dict(t=50, b=0, l=0),height=301,yaxis_title="Receita", xaxis_title="Período", title=f"-HISTÓRICO FATURAMENTO ANUAL", title_font_color="rgb(98,83,119)", title_font_size=15)
 
-        fig_hist_ano.update_layout(
-            margin=dict(t=50, b=0, l=0),
-            height=301,
-            yaxis_title="Receita",
-            xaxis_title="Período",
-            title="-FATURAMENTO ANUAL",
-            title_font_color="rgb(98,83,119)",
-            title_font_size=15
-        )
+
         # Considerando que "c3" seja o novo container:
         ctt8.plotly_chart(fig_hist_ano, use_container_width=True)
 
+
+        ########################################################################################
+        ####### GRAFICO COMPARATIVO FATURAMENTO ANUALK #########################################
+        ########################################################################################
+
+
+        # Extraindo ano e mês
+        df['ano_mes'] = df['data'].dt.to_period('M')
+
+        # Determinar o mês atual
+        current_month = pd.Timestamp.now().to_period('M')
+
+        # Filtrar o DataFrame para excluir o mês atual
+        df_filtered = df[df['ano_mes'] != current_month]
+
+        # Agregando os dados por ano e mês
+        venda_total_mensal = df_filtered.groupby('ano_mes')[['total']].sum(numeric_only=True).reset_index()
+
+        # Criando colunas separadas para o mês e o ano
+        venda_total_mensal['year'] = venda_total_mensal['ano_mes'].dt.year.astype(str)
+        venda_total_mensal['month'] = venda_total_mensal['ano_mes'].dt.month.astype(int)
+
+        venda_total_mensal['month_name'] = venda_total_mensal['month'].map(util.mapa_meses)
+
+        venda_total_mensal['total_formatado'] = venda_total_mensal['total'].apply(lambda x: f"R$ {x:,.2f}".replace('.', '@').replace(',', '.').replace('@', ','))
+
+        # Sequência de cores da paleta RdBu
+        colors = px.colors.diverging.RdBu
+
+        # Mapeamento de cada ano para uma cor específica da paleta (como exemplo)
+        # Ajuste conforme necessário
+        color_map = {
+            '2021': util.barra_verde_escuro,
+            '2022': util.barra_azul,
+            '2023': util.barra_verde_claro,
+            '2024': util.barra_vermelha,
+
+        }
+
+        fig_comparativo_anual = px.bar(
+            venda_total_mensal, 
+            x='month_name', 
+            y='total', 
+            color="year",
+            barmode='group',
+            orientation='v',
+            color_discrete_sequence=px.colors.sequential.Bluyl_r,
+            text='total_formatado',
+            #labels={'data_str': 'Data', 'valor': 'Valor Total'},
+        )
+
+        # Atualizando traços, layout e eixos
+        fig_comparativo_anual.update_yaxes(title_text="", showline=True, linecolor="Grey",linewidth=0.1, gridcolor='lightgrey')
+        fig_comparativo_anual.update_xaxes(title_text="", showline=True, linecolor="Grey", linewidth=0.1, gridcolor='lightgrey')
+        fig_comparativo_anual.update_traces(textposition='inside')
+        fig_comparativo_anual.update_layout(margin=dict(t=50, b=0, l=0),height=301,yaxis_title="Receita", xaxis_title="Período", title=f"-COMPARATIVO FATURAMENTO ANUAL", title_font_color="rgb(98,83,119)", title_font_size=15)
+
+        # Considerando que "c2" seja o novo container (ajuste o nome do container conforme necessário):
+        ctt9.plotly_chart(fig_comparativo_anual, use_container_width=True)
 
 st.markdown(
     """

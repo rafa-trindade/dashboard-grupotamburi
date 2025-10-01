@@ -23,6 +23,14 @@ def formata_para_brl(valor):
         return valor
     return f'R$ {valor:,.2f}'.replace(',', 'X').replace('.', ',').replace('X', '.')
 
+def anos_disponiveis(df):
+    return sorted(df['data'].dt.year.unique())
+
+def atualiza_meses_disponiveis(ano, df):
+    meses_numeros = df[df['data'].dt.year == ano]['data'].dt.month.unique()
+    meses_nomes = [mapa_meses[num] for num in sorted(meses_numeros)]
+    return meses_nomes
+
 def aplicar_estilo():
     st.markdown(
         """
