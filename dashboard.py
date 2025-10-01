@@ -1067,7 +1067,7 @@ with tab2:
         fig_venda_mes.update_yaxes(title_text="", showline=True, linecolor="Grey",linewidth=0.1, gridcolor='lightgrey')
         fig_venda_mes.update_xaxes(title_text="", showline=True, linecolor="Grey", linewidth=0.1, gridcolor='lightgrey')
         fig_venda_mes.update_traces(textposition='inside')
-        fig_venda_mes.update_layout(margin=dict(t=50, b=0, l=0),height=301,yaxis_title="Receita", xaxis_title="Período", title=f"-FATURAMENTO DIÁRIO ({util.mapa_meses[mes_selecionado].upper()}/{ano_selecionado})", title_font_color="rgb(98,83,119)", title_font_size=15)
+        fig_venda_mes.update_layout(margin=dict(t=30, b=0, l=0),height=301,yaxis_title="Receita", xaxis_title="Período", title=f"-FATURAMENTO DIÁRIO ({util.mapa_meses[mes_selecionado].upper()}/{ano_selecionado})", title_font_color="rgb(98,83,119)", title_font_size=15)
 
         ctt6.plotly_chart(fig_venda_mes, use_container_width=True)
 
@@ -1106,7 +1106,7 @@ with tab2:
         fig_venda_ano.update_yaxes(title_text="", showline=True, linecolor="Grey",linewidth=0.1, gridcolor='lightgrey')
         fig_venda_ano.update_xaxes(title_text="", showline=True, linecolor="Grey", linewidth=0.1, gridcolor='lightgrey')
         fig_venda_ano.update_traces(textposition='inside')
-        fig_venda_ano.update_layout(margin=dict(t=50, b=0, l=0),height=301,yaxis_title="Receita", xaxis_title="Período", title=f"-FATURAMENTO MENSAL ({ano_selecionado})", title_font_color="rgb(98,83,119)", title_font_size=15)
+        fig_venda_ano.update_layout(margin=dict(t=30, b=0, l=0),height=301,yaxis_title="Receita", xaxis_title="Período", title=f"-FATURAMENTO MENSAL ({ano_selecionado})", title_font_color="rgb(98,83,119)", title_font_size=15)
 
         ctt7.plotly_chart(fig_venda_ano, use_container_width=True)
 
@@ -1160,7 +1160,7 @@ with tab2:
         fig_hist_ano.update_traces(textposition='inside')
 
         fig_hist_ano.update_layout(
-            margin=dict(t=50, b=0, l=0),
+            margin=dict(t=30, b=0, l=0),
             height=301,
             yaxis_title="Receita",
             xaxis_title="Período",
