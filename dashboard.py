@@ -1042,15 +1042,13 @@ with tab2:
         primeira_quinzena_formatado = f"R$ {primeira_quinzena:,.2f}".replace('.', '@').replace(',', '.').replace('@', ',')
         segunda_quinzena_formatado = f"R$ {segunda_quinzena:,.2f}".replace('.', '@').replace(',', '.').replace('@', ',')
 
-        if primeira_quinzena == 0:
-            c2002.warning(f"1º Fechamento: {primeira_quinzena_formatado}")
-        else:
+        if primeira_quinzena > 0:
             c2002.info(f"1º Fechamento: {primeira_quinzena_formatado}")
 
-        if segunda_quinzena == 0:
-            c2003.warning(f"2º Fechamento:  {segunda_quinzena_formatado}")
-        else:
+
+        if segunda_quinzena > 0:
             c2003.info(f"2º Fechamento:  {segunda_quinzena_formatado}")
+
 
         # Adicionando coluna com valores formatados em R$
         venda_total['total_formatado'] = venda_total['total'].apply(lambda x: f"R$ {x:,.2f}".replace('.', '@').replace(',', '.').replace('@', ','))
