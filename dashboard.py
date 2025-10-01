@@ -1045,7 +1045,6 @@ with tab2:
         if primeira_quinzena > 0:
             c2002.info(f"1º Fechamento: {primeira_quinzena_formatado}")
 
-
         if segunda_quinzena > 0:
             c2003.info(f"2º Fechamento:  {segunda_quinzena_formatado}")
 
