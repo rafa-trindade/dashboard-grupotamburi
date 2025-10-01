@@ -1,16 +1,27 @@
 import streamlit as st
+import plotly.express as px 
+
 
 barra_azul = "#2d5480" 
 barra_azul_escuro = "#2d5c80"
 barra_verde = "#176f87"
 barra_verde_escuro = "#176f87"
 barra_vermelha = "#a22938"
+barra_verde_claro = px.colors.sequential.Darkmint[3]
+
 
 mapa_meses = {
     1: 'Janeiro', 2: 'Fevereiro', 3: 'Março', 4: 'Abril',
     5: 'Maio', 6: 'Junho', 7: 'Julho', 8: 'Agosto',
     9: 'Setembro', 10: 'Outubro', 11: 'Novembro', 12: 'Dezembro'
 }
+
+def formata_para_brl(valor):
+    try:
+        valor = float(valor)
+    except ValueError:
+        return valor
+    return f'R$ {valor:,.2f}'.replace(',', 'X').replace('.', ',').replace('X', '.')
 
 def aplicar_estilo():
     st.markdown(

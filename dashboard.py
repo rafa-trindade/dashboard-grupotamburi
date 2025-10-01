@@ -6,8 +6,8 @@ import datetime as dt
 from datetime import datetime
 import numpy as np
 from src.pdf import listar_arquivos_docs, exportar_pdf
+from src.nfe import listar_arquivos_pdfs, baixar_pdf
 import src.utils as util
-
 
 st.set_page_config(
     layout="wide",
@@ -56,9 +56,10 @@ col1_side.markdown('<h5 style="margin-bottom: 15px; color: #053061;">Última Atu
 col2_side.markdown('<h5 style="margin-bottom: 15px; text-align: end; color: #053061;">' + str(df['data'].max().strftime('%d/%m/%Y'))+ '</h5>', unsafe_allow_html=True)
 
 
-tab1, tab2 = st.tabs(["📅 Fechamentos Diários", "📂 Relatório (Fechamentos)"])
+tab1, tab2, tab3, tab4 = st.tabs(["📅 Fechamentos Diários", "📊 Histórico Faturamento", "📂 Relatório (Fechamentos)", "📄 NFE's"])
 
-with tab2:
+
+with tab3:
     arquivos = listar_arquivos_docs()
 
     if not arquivos:
@@ -149,6 +150,110 @@ with tab2:
         doc_url = f"https://docs.google.com/document/d/{file_id}/preview"
         with st.container(border=True):
             st.components.v1.iframe(src=doc_url, height=450, scrolling=True)
+
+CODE = st.secrets["CODE"]
+
+if "autenticado_tab4" not in st.session_state:
+    st.session_state["autenticado_tab4"] = False
+if "aba_ativa" not in st.session_state:
+    st.session_state["aba_ativa"] = "tab4"  # valor padrão
+
+with tab4:
+
+    st.session_state["aba_ativa"] = "tab4"
+    
+    if not st.session_state["autenticado_tab4"]:
+
+        with st.container(border=True):
+        
+            st.warning("Digite o código para acessar NFE's")
+            
+            codigo = st.text_input("Código de acesso", type="password", key="codigo_tab4")
+            
+            if st.button("Entrar", key="btn_tab4"):
+                if codigo == CODE:
+                    st.session_state["autenticado_tab4"] = True
+                    st.session_state["aba_ativa"] = "tab4"
+                    st.rerun()
+                else:
+                    st.error("Código incorreto ❌")
+    else:
+    
+        arquivos = listar_arquivos_pdfs()
+
+        if not arquivos:
+            st.warning("Nenhum arquivo PDF encontrado na pasta.")
+        else:
+            # Lista apenas nomes
+            nomes = [f["name"] for f in arquivos]
+
+            # Extrair ano e mês do padrão AAAAMM-SEQ
+            anos_meses = sorted(
+                {(n[:4], n[4:6]) for n in nomes if len(n) >= 6},
+                key=lambda x: (x[0], x[1])
+            )
+
+            # Pegar último ano/mês disponível
+            ultimo_ano, ultimo_mes = anos_meses[-1]
+
+            with st.container(border=True):
+                col_ano_pdf, col_mes_pdf, col_drop_pdf, col_download_pdf = st.columns([2, 2, 3, 2])
+
+            with col_ano_pdf:
+                anos_disp = sorted({a for a, m in anos_meses})
+                ano_sel = st.selectbox(
+                    "Selecione o Ano:",
+                    anos_disp,
+                    index=anos_disp.index(ultimo_ano),
+                    key="ano_pdf"
+                )
+
+            with col_mes_pdf:
+                meses_disp = sorted({m for a, m in anos_meses if a == ano_sel})
+                meses_labels = [util.mapa_meses[int(m)] for m in meses_disp]
+                mes_idx_default = meses_disp.index(ultimo_mes) if ano_sel == ultimo_ano else 0
+
+                mes_sel_label = st.selectbox(
+                    "Selecione o Mês:",
+                    meses_labels,
+                    index=mes_idx_default,
+                    key="mes_pdf"
+                )
+
+                mes_sel = f"{list(util.mapa_meses.keys())[list(util.mapa_meses.values()).index(mes_sel_label)]:02d}"
+
+            nomes_filtrados = [n for n in nomes if n.startswith(f"{ano_sel}{mes_sel}")]
+        
+            with col_drop_pdf:
+                escolha = st.selectbox(
+                    "Selecione um Fechamento: (aaaamm-seq)",
+                    nomes_filtrados,
+                    key="drop_pdf"
+                )
+
+            # Botão Download PDF
+            with col_download_pdf:
+                st.markdown("<div style='margin-top: 27.8px;'>", unsafe_allow_html=True)
+                idx = nomes.index(escolha)
+                file_id = arquivos[idx]["id"]
+                fh = baixar_pdf(file_id)
+                st.download_button(
+                    label="📥 Download NFE",
+                    data=fh.getvalue(),
+                    file_name=escolha,
+                    mime="application/pdf",
+                    key="download_pdf_tab4",
+                    use_container_width=True
+                )
+                st.markdown("</div>", unsafe_allow_html=True)
+
+            # Visualização do PDF
+            idx = nomes.index(escolha)
+            file_id = arquivos[idx]["id"]
+            pdf_url = f"https://drive.google.com/file/d/{file_id}/preview"
+            with st.container(border=True):
+                st.components.v1.iframe(src=pdf_url, height=450, scrolling=True)
+
 
 
 ########################################################################################
@@ -834,6 +939,201 @@ fig_area.update_layout(
 ct2.plotly_chart(fig_area, use_container_width=True, automargin=True)
 
 
+########################################################################################
+####### ABA HISTORICO FATURAMENTO ######################################################
+########################################################################################
+with tab2:
+    with st.container(border=True):
+        col_filtro_mes, col_filtro_ano = st.columns(2)  
+        col6, col7 = st.columns([2,1])
+
+    with st.container(border=True):
+        col8, col9 = st.columns([1,4])
+
+########################################################################################
+####### GRAFICO VISAO GERAL MENSAL #####################################################
+########################################################################################
+    
+mes_atual = util.mapa_meses[dt.datetime.now().month]
+ano_atual = dt.datetime.now().year
+
+# Criação dos selectbox para o mês e ano, com valores padrão sendo o mês e ano atuais
+mes_selecionado = col_filtro_mes.selectbox("Mês", list(util.mapa_meses.values()), index=list(util.mapa_meses.values()).index(mes_atual), key="mes_selecionado")
+ano_selecionado = col_filtro_ano.selectbox("Ano", sorted(df['data'].dt.year.unique(), reverse=True), index=0,  key="ano_selecionado")
+
+# Convertendo a seleção de mês de volta para o número do mês
+mes_selecionado = [key for key, value in util.mapa_meses.items() if value == mes_selecionado][0]
+
+# Filtrando o dataframe com base no mês e ano selecionados
+df_mes_filtrado = df[(df['data'].dt.month == mes_selecionado) & (df['data'].dt.year == ano_selecionado)]
+
+
+# Agregando os dados por dia
+venda_total = df_mes_filtrado.groupby("data")[["total"]].sum(numeric_only=True).reset_index()
+
+# Adicionando coluna com valores formatados em R$
+venda_total['total_formatado'] = venda_total['total'].apply(lambda x: f"R$ {x:,.2f}".replace('.', '@').replace(',', '.').replace('@', ','))
+
+# Formatando a coluna 'data' para o padrão dd/mm/aa
+venda_total['data_formatada'] = venda_total['data'].dt.strftime('%d/%m/%y')
+
+fig_venda_mes = px.bar(
+    venda_total, 
+    x='data_formatada', 
+    y='total', 
+    orientation='v',
+    text=venda_total['total'].apply(util.formata_para_brl),
+    color_discrete_sequence=[util.barra_azul],
+    #labels={'data_str': 'Data', 'valor': 'Valor Total'},
+
+)
+
+# Atualizando traços, layout e eixos
+fig_venda_mes.update_yaxes(title_text="", showline=True, linecolor="Grey",linewidth=0.1, gridcolor='lightgrey')
+fig_venda_mes.update_xaxes(title_text="", showline=True, linecolor="Grey", linewidth=0.1, gridcolor='lightgrey')
+fig_venda_mes.update_traces(textposition='inside')
+fig_venda_mes.update_layout(margin=dict(t=50, b=0, l=0),height=400,yaxis_title="Receita", xaxis_title="Período", title=f"-FATURAMENTO DIÁRIO ({util.mapa_meses[mes_selecionado].upper()}/{ano_selecionado})", title_font_color="rgb(98,83,119)", title_font_size=15)
+
+col6.plotly_chart(fig_venda_mes, use_container_width=True)
+
+
+########################################################################################
+####### GRAFICO VISAO GERAL ANUAL ######################################################
+########################################################################################
+
+df['mes_num'] = df['data'].dt.month
+df['ano'] = df['data'].dt.year
+
+df_filtrado = df[df['ano'] == ano_selecionado]
+
+venda_total_mensal = df_filtrado.groupby(['mes_num', 'ano'])[['total']].sum(numeric_only=True).reset_index()
+
+venda_total_mensal = venda_total_mensal.sort_values(by='mes_num')
+
+venda_total_mensal['mes'] = venda_total_mensal['mes_num'].map(util.mapa_meses)
+venda_total_mensal['mes_ano'] = venda_total_mensal['mes'] + '/' + venda_total_mensal['ano'].astype(str)
+
+venda_total_mensal['total_formatado'] = venda_total_mensal['total'].apply(lambda x: f"R$ {x:,.2f}".replace('.', '@').replace(',', '.').replace('@', ','))
+
+fig_venda_ano = px.bar(
+    venda_total_mensal, 
+    x='mes', 
+    y='total', 
+    orientation='v',
+    text='total_formatado',
+    color_discrete_sequence=[util.barra_verde_escuro],
+    #labels={'data_str': 'Data', 'valor': 'Valor Total'},
+
+)
+
+# Atualizando traços, layout e eixos
+fig_venda_ano.update_yaxes(title_text="", showline=True, linecolor="Grey",linewidth=0.1, gridcolor='lightgrey')
+fig_venda_ano.update_xaxes(title_text="", showline=True, linecolor="Grey", linewidth=0.1, gridcolor='lightgrey')
+fig_venda_ano.update_traces(textposition='inside')
+fig_venda_ano.update_layout(margin=dict(t=50, b=0, l=0),height=400,yaxis_title="Receita", xaxis_title="Período", title=f"-FATURAMENTO MENSAL ({ano_selecionado})", title_font_color="rgb(98,83,119)", title_font_size=15)
+
+col7.plotly_chart(fig_venda_ano, use_container_width=True)
+
+
+########################################################################################
+####### GRAFICO HISTORICO ANUAL ########################################################
+########################################################################################
+
+# Extraindo o ano como string
+df['ano'] = df['data'].dt.year.astype(str)
+
+# Agregando os dados por ano
+venda_total_anual = df.groupby('ano')[['total']].sum(numeric_only=True).reset_index()
+
+# Adicionando uma coluna com os valores formatados em reais
+venda_total_anual['total_formatado'] = venda_total_anual['total'].apply(lambda x: f"R$ {x:,.2f}".replace('.', '@').replace(',', '.').replace('@', ','))
+
+# Configurações adicionais do eixo y
+fig_venda_ano.update_yaxes(
+    showline=True,
+    linecolor = "Grey",
+    linewidth=0.5
+)
+
+fig_hist_ano = px.bar(
+    venda_total_anual, 
+    x='ano', 
+    y='total', 
+    orientation='v',
+    text='total_formatado',
+    color_discrete_sequence=[util.barra_verde],
+    #labels={'data_str': 'Data', 'valor': 'Valor Total'},
+)
+
+# Atualizando traços, layout e eixos
+fig_hist_ano.update_yaxes(title_text="", showline=True, linecolor="Grey",linewidth=0.1, gridcolor='lightgrey')
+fig_hist_ano.update_xaxes(title_text="", showline=True, linecolor="Grey", linewidth=0.1, gridcolor='lightgrey')
+fig_hist_ano.update_traces(textposition='inside')
+fig_hist_ano.update_layout(margin=dict(t=50, b=0, l=0),height=400,yaxis_title="Receita", xaxis_title="Período", title=f"-HISTÓRICO FATURAMENTO ANUAL", title_font_color="rgb(98,83,119)", title_font_size=15)
+
+
+# Considerando que "c3" seja o novo container:
+col8.plotly_chart(fig_hist_ano, use_container_width=True)
+
+
+########################################################################################
+####### GRAFICO COMPARATIVO FATURAMENTO ANUALK #########################################
+########################################################################################
+
+
+# Extraindo ano e mês
+df['ano_mes'] = df['data'].dt.to_period('M')
+
+# Determinar o mês atual
+current_month = pd.Timestamp.now().to_period('M')
+
+# Filtrar o DataFrame para excluir o mês atual
+df_filtered = df[df['ano_mes'] != current_month]
+
+# Agregando os dados por ano e mês
+venda_total_mensal = df_filtered.groupby('ano_mes')[['total']].sum(numeric_only=True).reset_index()
+
+# Criando colunas separadas para o mês e o ano
+venda_total_mensal['year'] = venda_total_mensal['ano_mes'].dt.year.astype(str)
+venda_total_mensal['month'] = venda_total_mensal['ano_mes'].dt.month.astype(int)
+
+venda_total_mensal['month_name'] = venda_total_mensal['month'].map(util.mapa_meses)
+
+venda_total_mensal['total_formatado'] = venda_total_mensal['total'].apply(lambda x: f"R$ {x:,.2f}".replace('.', '@').replace(',', '.').replace('@', ','))
+
+# Sequência de cores da paleta RdBu
+colors = px.colors.diverging.RdBu
+
+# Mapeamento de cada ano para uma cor específica da paleta (como exemplo)
+# Ajuste conforme necessário
+color_map = {
+    '2021': util.barra_verde_escuro,
+    '2022': util.barra_azul,
+    '2023': util.barra_verde_claro,
+    '2024': util.barra_vermelha,
+
+}
+
+fig_comparativo_anual = px.bar(
+    venda_total_mensal, 
+    x='month_name', 
+    y='total', 
+    color="year",
+    barmode='group',
+    orientation='v',
+    color_discrete_sequence=px.colors.sequential.Bluyl_r,
+    text='total_formatado',
+    #labels={'data_str': 'Data', 'valor': 'Valor Total'},
+)
+
+# Atualizando traços, layout e eixos
+fig_comparativo_anual.update_yaxes(title_text="", showline=True, linecolor="Grey",linewidth=0.1, gridcolor='lightgrey')
+fig_comparativo_anual.update_xaxes(title_text="", showline=True, linecolor="Grey", linewidth=0.1, gridcolor='lightgrey')
+fig_comparativo_anual.update_traces(textposition='inside')
+fig_comparativo_anual.update_layout(margin=dict(t=50, b=0, l=0),height=400,yaxis_title="Receita", xaxis_title="Período", title=f"-COMPARATIVO FATURAMENTO ANUAL", title_font_color="rgb(98,83,119)", title_font_size=15)
+
+# Considerando que "c2" seja o novo container (ajuste o nome do container conforme necessário):
+col9.plotly_chart(fig_comparativo_anual, use_container_width=True)
 
 st.markdown(
     """
