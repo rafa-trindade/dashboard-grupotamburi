@@ -178,7 +178,7 @@ with tab4:
                     st.session_state["aba_ativa"] = "tab4"
                     st.rerun()
                 else:
-                    placeholder4.error("Código ncorreto ❌")
+                    placeholder4.error("Código Incorreto ❌")
             else:
                 placeholder4.warning("Digite o Código para acessar NFE's")
     else:
@@ -962,7 +962,7 @@ with tab2:
                     st.session_state["aba_ativa"] = "tab2"
                     st.rerun()
                 else:
-                    placeholder2.error("Código incorreto ❌")
+                    placeholder2.error("Código Incorreto ❌")
             else:
                 placeholder2.warning("Digite o Código para acessar Histórico de Faturamento")
     else:
