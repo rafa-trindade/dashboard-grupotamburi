@@ -835,6 +835,30 @@ ct2.plotly_chart(fig_area, use_container_width=True, automargin=True)
 
 
 
-
+st.markdown(
+    """
+    <div style="
+        position: fixed; 
+        bottom: 0;
+        left: 0;
+        right: 0; 
+        width: 100%; 
+        background-color: #c6d0d2; 
+        padding: 2.5px; 
+        display: flex; 
+        justify-content: center; 
+        align-items: center; 
+        color: #2d5480; 
+        font-size: 14px;
+        gap: 8px;
+    ">
+        <span>Developed by </span>
+        <a href="https://github.com/rafa-trindade" target="_blank">
+            <img src="https://img.shields.io/badge/-Rafael%20Trindade-2D5480?style=flat-square&logo=github&logoColor=E4E3E3" alt="GitHub Badge">
+        </a>
+    </div>
+    """,
+    unsafe_allow_html=True
+)
 
 
